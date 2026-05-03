@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Citizen feedback and suggestions",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "feedback": { "type": "string" },
+        "type": { "type": "string", "enum": ["suggestion", "issue"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "feedback", "type", "createdAt"]
+    },
+    "QuizResult": {
+      "title": "Quiz Result",
+      "description": "User results from the civic literacy quiz",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "score": { "type": "number" },
+        "total": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "score", "total", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/feedback/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "Public feedback submissions"
+    },
+    "/users/{userId}/quiz_results/{resultId}": {
+      "schema": "QuizResult",
+      "description": "Personal quiz results for each user"
+    }
+  }
+}

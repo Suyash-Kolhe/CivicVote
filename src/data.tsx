@@ -100,7 +100,18 @@ export const INDIAN_ELECTION_STEPS: Step[] = [
 ];
 
 // Mock data moved here to save App.tsx space
-export type Page = 'home' | 'booth' | 'candidates' | 'journey' | 'eligibility' | 'methods' | 'quiz' | 'news';
+/**
+ * Interface for AI Assistant messages
+ */
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * Valid navigation pages for the application
+ */
+export type Page = 'home' | 'booth' | 'candidates' | 'journey' | 'eligibility' | 'methods' | 'quiz' | 'news' | 'assistant' | 'results';
 
 export const ELECTION_DATE = new Date('2026-05-15');
 
@@ -367,6 +378,44 @@ export const MOCK_CANDIDATES: Candidate[] = [
   }
 ];
 
+export const QUIZ_QUESTIONS = [
+  {
+    id: 1,
+    question: "What is the minimum age to vote in an Indian General Election?",
+    options: ["16 Years", "18 Years", "21 Years", "25 Years"],
+    correct: 1,
+    explanation: "As per the 61st Constitutional Amendment Act, 1988, the voting age was reduced from 21 to 18 years."
+  },
+  {
+    id: 2,
+    question: "What does VVPAT stand for?",
+    options: ["Voter Verified Paper Audit Trail", "Voter Validated Paper Account Trail", "Voice Verified Paper Audit Track", "Virtual Voter Paper Audit Tool"],
+    correct: 0,
+    explanation: "VVPAT allows voters to verify that their vote was cast correctly."
+  }
+];
+
+export interface PartyResult {
+  party: string;
+  seats: number;
+  color: string;
+  percentage: number;
+}
+
+export const ELECTION_RESULTS: PartyResult[] = [
+  { party: 'National Progress Alliance', seats: 285, color: '#2563eb', percentage: 42.5 },
+  { party: 'United People\'s Front', seats: 195, color: '#dc2626', percentage: 38.2 },
+  { party: 'Federal Coalition', seats: 45, color: '#16a34a', percentage: 12.1 },
+  { party: 'Others', seats: 18, color: '#94a3b8', percentage: 7.2 }
+];
+
+export const CONSTITUENCY_RESULTS = [
+  { name: 'Mumbai North', winner: 'Rajesh Kumar', party: 'NPA', votes: '54%', margin: '45,000' },
+  { name: 'Delhi South', winner: 'Anjali Sharma', party: 'UPF', votes: '49%', margin: '12,000' },
+  { name: 'Bangalore Central', winner: 'Siddharth Rao', party: 'NPA', votes: '61%', margin: '89,000' },
+  { name: 'Chennai West', winner: 'M. Karunanidhi', party: 'FC', votes: '52%', margin: '23,000' },
+];
+
 export const ELECTION_NEWS_FEED: NewsArticle[] = [
   {
     id: 1,
@@ -379,5 +428,55 @@ export const ELECTION_NEWS_FEED: NewsArticle[] = [
     importance: 'high',
     region: 'National'
   }
-  // ... other articles would go here, but omitted for brevity in this step
+];
+
+// --- Translations ---
+export type Language = 'en' | 'hi' | 'bn' | 'mr' | 'ta';
+
+export interface TranslationSet {
+  nav: { [key: string]: string };
+  home: { [key: string]: string };
+  candidates: { [key: string]: string };
+  common: { [key: string]: string };
+}
+
+export const TRANSLATIONS: Record<Language, TranslationSet> = {
+  en: {
+    nav: { home: 'Home', booths: 'Booths', candidates: 'Candidates', process: 'Process', eligibility: 'Eligibility', methods: 'Methods', quiz: 'Quiz', news: 'Intelligence', signin: 'Sign In', register: 'Register To Vote' },
+    home: { badge: 'Official Non-Partisan Data', title1: 'Every Vote', title2: 'Counts For', title3: "India's Future", subtitle: 'Largest Democracy', cta: 'Start Voting Process' },
+    candidates: { badge: 'Candidate Intelligence', title: 'Know Your', titleSpan: 'Representatives', searchPlaceholder: 'Enter Constituency (e.g., Mumbai South)...', manifestoTitle: 'View Manifesto' },
+    common: { poweredBy: 'Powered by', lang: 'English' }
+  },
+  hi: {
+    nav: { home: 'होम', booths: 'बूथ', candidates: 'उम्मीदवार', process: 'प्रक्रिया', eligibility: 'पात्रता', methods: 'तरीके', quiz: 'क्विज़', news: 'समाचार', signin: 'साइन इन', register: 'वोट के लिए रजिस्टर करें' },
+    home: { badge: 'आधिकारिक गैर-पक्षपाती डेटा', title1: 'हर वोट', title2: 'जरूरी है', title3: "भारत के भविष्य के लिए", subtitle: 'सबसे बड़ा लोकतंत्र', cta: 'मतदान प्रक्रिया शुरू करें' },
+    candidates: { badge: 'उम्मीदवार जानकारी', title: 'अपने', titleSpan: 'प्रतिनिधियों को जानें', searchPlaceholder: 'क्षेत्र दर्ज करें (उदा. मुंबई दक्षिण)...', manifestoTitle: 'घोषणापत्र देखें' },
+    common: { poweredBy: 'द्वारा संचालित', lang: 'हिन्दी' }
+  },
+  bn: {
+    nav: { home: 'হোম', booths: 'বুথ', candidates: 'প্রার্থী', process: 'প্রক্রিয়া', eligibility: 'যোগ্যতা', methods: 'পদ্ধতি', quiz: 'কুইজ', news: 'সংবাদ', signin: 'সাইন ইন', register: 'ভোটের জন্য নিবন্ধন করুন' },
+    home: { badge: 'অফিসিয়াল নিরপেক্ষ ডেটা', title1: 'প্রতিটি ভোট', title2: 'গণনা করা হয়', title3: "ভারতের ভবিষ্যতের জন্য", subtitle: 'বৃহত্তম গণতন্ত্র', cta: 'ভোট প্রক্রিয়া শুরু করুন' },
+    candidates: { badge: 'প্রার্থী বুদ্ধিমত্তা', title: 'আপনার', titleSpan: 'প্রতিনিধিদের জানুন', searchPlaceholder: 'নির্বাচনী এলাকা লিখুন (যেমন, মুম্বাই দক্ষিণ)...', manifestoTitle: 'ম্যানিফেস্টো দেখুন' },
+    common: { poweredBy: 'দ্বারা চালিত', lang: 'বাংলা' }
+  },
+  mr: {
+    nav: { home: 'होम', booths: 'बूथ', candidates: 'उमेदवार', process: 'प्रक्रिया', eligibility: 'पात्रता', methods: 'पद्धती', quiz: 'चाचणी', news: 'बातम्या', signin: 'साइन इन', register: 'मतदानासाठी नोंदणी करा' },
+    home: { badge: 'अधिकृत गैर-पक्षपाती डेटा', title1: 'प्रत्येक मत', title2: 'महत्त्वाचे आहे', title3: "भारताच्या भविष्यासाठी", subtitle: 'सर्वात मोठी लोकशाही', cta: 'मतदान प्रक्रिया सुरू करा' },
+    candidates: { badge: 'उमेदवार माहिती', title: 'तुमचे', titleSpan: 'प्रतिनिधी जाणून घ्या', searchPlaceholder: 'मतदारसंघ प्रविष्ट करा (उदा. मुंबई दक्षिण)...', manifestoTitle: 'जाहीरनामा पहा' },
+    common: { poweredBy: 'द्वारे समर्थित', lang: 'मराठी' }
+  },
+  ta: {
+    nav: { home: 'முகப்பு', booths: 'சாவடிகள்', candidates: 'வேட்பாளர்கள்', process: 'செயல்முறை', eligibility: 'தகுதி', methods: 'முறைகள்', quiz: 'வினாடி வினா', news: 'செய்திகள்', signin: 'உள்நுழைக', register: 'வாக்களிக்க பதிவு செய்யுங்கள்' },
+    home: { badge: 'அதிகாரப்பூர்வ சார்பற்ற தரவு', title1: 'ஒவ்வொரு வாக்கும்', title2: 'முக்கியமானது', title3: "இந்தியாவின் எதிர்காலத்திற்காக", subtitle: 'மிகப்பெரிய ஜனநாயகம்', cta: 'வாக்குப்பதிவு செயல்முறையைத் தொடங்குங்கள்' },
+    candidates: { badge: 'வேட்பாளர் நுண்ணறிவு', title: 'உங்கள்', titleSpan: 'பிரதிநிதிகளைத் தெரிந்து கொள்ளுங்கள்', searchPlaceholder: 'தொகுதியை உள்ளிடவும் (எ.கா., மும்பை தெற்கு)...', manifestoTitle: 'அறிக்கையைப் பார்க்கவும்' },
+    common: { poweredBy: 'ஆல் இயக்கப்படுகிறது', lang: 'தமிழ்' }
+  }
+};
+
+export const INDIAN_LANGUAGES: { code: Language; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'bn', name: 'বাংলা' },
+  { code: 'mr', name: 'मराठी' },
+  { code: 'ta', name: 'தமிழ்' }
 ];
