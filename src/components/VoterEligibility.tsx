@@ -83,7 +83,7 @@ export const VoterEligibility = memo(() => {
               <a 
                 href="https://voters.eci.gov.in" 
                 target="_blank" 
-                rel="noreferrer"
+                rel="no-referrer"
                 className="inline-flex items-center gap-4 px-10 py-5 bg-cv-dark text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-[1.03] transition-all shadow-xl"
               >
                 Launch NVSP Portal

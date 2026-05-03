@@ -95,22 +95,22 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Login Error:", error);
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await signOut(auth);
     } catch (error) {
       console.error("Logout Error:", error);
     }
-  };
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,8 +120,8 @@ export default function App() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = useCallback(async () => {
+    if (!input.trim() || isLoading || !genAI) return;
     const userMessage = input;
     setInput("");
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
@@ -155,7 +155,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [input, isLoading, messages]);
 
   useEffect(() => {
     const calculateDays = () => {
@@ -177,14 +177,14 @@ export default function App() {
     }
   }, [currentPage]);
 
-  const toggleStepCompletion = (id: number) => {
+  const toggleStepCompletion = useCallback((id: number) => {
     setCompletedSteps(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  };
+  }, []);
 
   const progressPercentage = Math.round((completedSteps.size / INDIAN_ELECTION_STEPS.length) * 100);
 
@@ -252,7 +252,7 @@ export default function App() {
             <button id="nav-news" onClick={() => setCurrentPage('news')} className={`nav-link ${currentPage === 'news' ? 'text-cv-blue' : ''}`} aria-current={currentPage === 'news' ? 'page' : undefined}>{t.nav.news}</button>
             <button id="nav-results" onClick={() => setCurrentPage('results')} className={`nav-link ${currentPage === 'results' ? 'text-cv-blue' : ''}`} aria-current={currentPage === 'results' ? 'page' : undefined}>RESULTS</button>
             <button id="nav-assistant" onClick={() => setCurrentPage('assistant')} className={`nav-link flex items-center gap-2 ${currentPage === 'assistant' ? 'text-cv-blue' : ''}`} aria-current={currentPage === 'assistant' ? 'page' : undefined}>
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               AI DESK
             </button>
           </nav>
@@ -545,11 +545,11 @@ export default function App() {
                       </div>
                       <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mb-6">Official Resources</p>
                       <div className="space-y-6">
-                        <a href="https://voters.eci.gov.in" target="_blank" className="flex items-center justify-between group bg-white/10 p-4 rounded-xl hover:bg-white/20 transition-all">
+                        <a href="https://voters.eci.gov.in" target="_blank" rel="no-referrer" className="flex items-center justify-between group bg-white/10 p-4 rounded-xl hover:bg-white/20 transition-all">
                           <span className="text-[10px] font-bold uppercase tracking-widest">Voter Portal</span>
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </a>
-                        <a href="https://results.eci.gov.in" target="_blank" className="flex items-center justify-between group bg-white/10 p-4 rounded-xl hover:bg-white/20 transition-all">
+                        <a href="https://results.eci.gov.in" target="_blank" rel="no-referrer" className="flex items-center justify-between group bg-white/10 p-4 rounded-xl hover:bg-white/20 transition-all">
                           <span className="text-[10px] font-bold uppercase tracking-widest">Result Portal</span>
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </a>

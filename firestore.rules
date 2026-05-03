@@ -57,7 +57,14 @@ service cloud.firestore {
     // --- Path Definitions ---
 
     match /feedback/{feedbackId} {
-      allow create: if isSignedIn() && isValidFeedback(incoming()) && isValidId(feedbackId);
+      // Create is the only allowed write for general users
+      allow create: if isSignedIn() && 
+                      isValidFeedback(incoming()) && 
+                      isValidId(feedbackId);
+      
+      // Updates are locked for feedback - once submitted, it is a record of truth
+      allow update, delete: if isAdmin();
+      
       allow get, list: if isAdmin();
     }
 
@@ -66,7 +73,13 @@ service cloud.firestore {
       
       match /quiz_results/{resultId} {
         allow read, list: if isOwner(userId) || isAdmin();
-        allow create: if isOwner(userId) && isValidQuizResult(incoming()) && isValidId(resultId);
+        // Create is atomic and uses server timestamp
+        allow create: if isOwner(userId) && 
+                        isValidQuizResult(incoming()) && 
+                        isValidId(resultId);
+        // Scores are immutable once recorded
+        allow update: if false;
+        allow delete: if isAdmin();
       }
     }
   }

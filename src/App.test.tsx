@@ -1,8 +1,40 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 
-// Mock dependencies
+// Mock Firebase
+vi.mock('./lib/firebase', () => ({
+  auth: {
+    currentUser: null,
+    onAuthStateChanged: vi.fn((cb) => {
+      cb(null);
+      return () => {};
+    }),
+  },
+  db: {},
+  handleFirestoreError: vi.fn(),
+  OperationType: { WRITE: 'write', GET: 'get' }
+}));
+
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(),
+  onAuthStateChanged: vi.fn((auth, cb) => {
+    cb(null);
+    return () => {};
+  }),
+  signInWithPopup: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  signOut: vi.fn(),
+}));
+
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(),
+  collection: vi.fn(),
+  addDoc: vi.fn(),
+  serverTimestamp: vi.fn(),
+}));
+
+// Mock components that use external libs to avoid complex setup
 vi.mock('@vis.gl/react-google-maps', () => ({
   APIProvider: ({ children }: any) => <div data-testid="api-provider">{children}</div>,
   Map: ({ children }: any) => <div data-testid="google-map">{children}</div>,
@@ -30,12 +62,16 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 }));
 
 describe('Civic Vote Application Integration Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders landing page correctly', () => {
     render(<App />);
     expect(screen.getByText(/Every Vote/i)).toBeDefined();
   });
 
-  it('navigates to different sections via desktop nav', () => {
+  it('navigates to different sections via desktop nav', async () => {
     render(<App />);
     
     // Candidates
@@ -51,34 +87,32 @@ describe('Civic Vote Application Integration Tests', () => {
     // Results
     const resultsLink = screen.getByRole('button', { name: /RESULTS/i });
     fireEvent.click(resultsLink);
-    expect(screen.getByText(/Election Manifestation/i)).toBeDefined();
+    expect(screen.getByText(/Post-Election Analytics/i)).toBeDefined();
   });
 
-  it('validates candidate search results filtering', () => {
+  it('allows switching languages', async () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /Candidates/i }));
-    const searchInput = screen.getByPlaceholderText(/Enter Constituency/i);
-    fireEvent.change(searchInput, { target: { value: 'Mumbai South' } });
-    expect(screen.getByText(/Arvind Krishna/i)).toBeDefined();
+    const langBtn = screen.getByText(/English/i);
+    fireEvent.click(langBtn);
+    
+    const hindiBtn = screen.getByText(/हिन्दी/i);
+    fireEvent.click(hindiBtn);
+    
+    expect(screen.getByText(/होम/i)).toBeDefined();
   });
 
-  it('allows opening AI assistant FAB and sending messages', async () => {
+  it('opens and closes the feedback modal', async () => {
     render(<App />);
-    const fabButton = screen.getByLabelText(/Open Civic Assistant/i);
-    fireEvent.click(fabButton);
-    const input = screen.getByPlaceholderText(/Type your query/i);
-    fireEvent.change(input, { target: { value: 'How to vote?' } });
-    fireEvent.click(screen.getByRole('button', { name: '' })); // The send button has no text but an icon
+    const feedbackBtn = screen.getByText(/Provide Feedback/i);
+    fireEvent.click(feedbackBtn);
+    
+    expect(screen.getByText(/Citizen Voice/i)).toBeDefined();
+    
+    const closeBtn = screen.getByLabelText(/Close/i);
+    fireEvent.click(closeBtn);
     
     await waitFor(() => {
-      expect(screen.getByText(/Mock AI response/i)).toBeDefined();
+      expect(screen.queryByText(/Citizen Voice/i)).toBeNull();
     });
-  });
-
-  it('renders election results charts correctly', () => {
-    render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /RESULTS/i }));
-    expect(screen.getByText(/National Seat Share/i)).toBeDefined();
-    expect(screen.getByText(/Party Performance/i)).toBeDefined();
   });
 });

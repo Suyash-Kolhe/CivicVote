@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Trophy, Check, MapPin, ArrowRight, Zap, Users, Globe, Sparkles, ShieldCheck } from 'lucide-react';
 import { MOCK_CANDIDATES, type Candidate, type TranslationSet } from '../data';
@@ -205,21 +205,26 @@ export const CandidateSearch = memo(({ t }: { t: TranslationSet }) => {
   const [compareList, setCompareList] = useState<Candidate[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'compare'>('grid');
 
-  const filteredCandidates = searchTerm.trim() === "" 
-    ? MOCK_CANDIDATES 
-    : MOCK_CANDIDATES.filter(c => 
-        c.constituency.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filteredCandidates = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return MOCK_CANDIDATES;
+    return MOCK_CANDIDATES.filter(c => 
+      c.constituency.toLowerCase().includes(term) ||
+      c.name.toLowerCase().includes(term)
+    );
+  }, [searchTerm]);
 
-  const toggleCompare = (candidate: Candidate, e: React.MouseEvent) => {
+  const toggleCompare = useCallback((candidate: Candidate, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (compareList.find(c => c.id === candidate.id)) {
-      setCompareList(compareList.filter(c => c.id !== candidate.id));
-    } else if (compareList.length < 4) {
-      setCompareList([...compareList, candidate]);
-    }
-  };
+    setCompareList(prev => {
+      if (prev.find(c => c.id === candidate.id)) {
+        return prev.filter(c => c.id !== candidate.id);
+      } else if (prev.length < 4) {
+        return [...prev, candidate];
+      }
+      return prev;
+    });
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-6">
